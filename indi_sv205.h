@@ -36,10 +36,14 @@ class SV205 : public INDI::CCD
         bool StartExposure(float exposure) override;
         // Called to actually retrieve image after exposure finishes
         bool processExposureComplete();
-        const char* getDefaultName() override;   // <-- add this
+        const char* getDefaultName() override;   
+        void TimerHit() override;
   private:
+
+    INumber ccdexposure,ccd_frame_width,ccd_frame_height;
     INumber exposureNP;
-    IText imageBP;
+    IBLOB imageBP;        // Image BLOB property
+    double exposureSec;   // Last requested exposure
 };
 /*
 // Factory function called by INDI library

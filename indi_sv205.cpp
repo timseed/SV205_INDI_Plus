@@ -9,17 +9,24 @@
 // #include <indicom.h>
 #include <memory>
 #include <vector>
-#define GAIN_PROPERTY 10
+#include <iostream>
 using namespace std;
 
-SV205::SV205() : INDI::CCD() {}
+SV205::SV205() : INDI::CCD() {
+  std::cout << "SV205 constructor called" << std::endl;
+}
 SV205::~SV205() {}
 // Called once at driver init
 bool SV205::initProperties() {
   // call base first
   INDI::CCD::initProperties();
-  IUFillNumber(&exposureNP, "CCD_EXPOSURE", "Exposure Time", "ex time", 0, 1000,
-               1, 1.0);
+  IUFillNumber(&exposureNP, "CCD_EXPOSURE", "Exposure Time", "ex time", 0, 1000, 1, 1.0);
+  IUFillNumber(&ccd_frame_width, "CCD_FRAME_WIDTH", "CCD Frame Width", "ccdw width", 4120, 4120, 1, 1.0);
+  IUFillNumber(&ccd_frame_height, "CCD_FRAME_HEIGHT", "CCD Frame Height", "ccdw height", 2120, 2120, 1, 1.0);
+  //      defineNumber(&exposureNP);
+  //      defineNumber(&exposureNP);
+  //      defineNumber(&exposureNP);
+  //      defineNumber(&exposureNP);
   //      defineNumber(&exposureNP);
   // Add any custom properties here (e.g. sensor temp, gain)
   // Example: a number property for custom gain
@@ -76,9 +83,9 @@ bool SV205::ISNewText(const char *dev, const char *name, char **texts,
 bool SV205::StartExposure(float exposure) {
   // Implement capture start using your camera API
   // set CCD_EXPOSURE_PROPERTY and CCD_BUSY appropriately
-  char buffer[100];
-  sprintf(buffer, "Starting Exposure %f s", exposure);
-  IDMessage("Sv205", buffer);
+  //char buffer[100];
+  //sprintf(buffer, "Starting Exposure %f s", exposure);
+  IDMessage("SV205","Starting Exposure %f s", exposure);
   // For demo, we'll simulate capture and call processExposureComplete
   // In real driver spawn thread to wait for exposure time and capture frame
   return true;
@@ -98,6 +105,10 @@ const char* SV205::getDefaultName() {
     return "SV205 PLUS";
 }
 
+void SV205::TimerHit()
+{
+    // Optional periodic updates
+}
 
 // Factory function called by INDI library
 extern "C" {
@@ -105,16 +116,31 @@ static const char *getDefaultName() { return "indi_sv205_plus"; }
 
 // driver entry points
 void ISGetProperties(const char *dev) {
+  printf("In ISGetProperties\n");
   static SV205 *drv = nullptr;
   if (!drv)
    drv = new SV205();
   drv->ISGetProperties(dev);
 }
 
-void ISNewNumber(const char *dev, const char *name, double *values,
-                 char *names[], int n) {
-  // Dispatch to driver instance...
+// Name of the driver
+const char* ISGetDriverName() { 
+  printf("In ISGetDriverName\n");
+    return "SV205"; 
 }
+
+// Version string
+const char* ISGetDriverVersion() { 
+    return "0.1"; 
+}
+
+// Interface version
+int ISGetDriverInterfaceVersion() { 
+    return 1; 
+}
+
+
+
 
 // ...and so on. Use INDI driver skeleton docs / examples for full set of entry
 // points.
